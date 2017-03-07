@@ -1,4 +1,4 @@
-package com.michealyang.model;
+package com.michealyang.domain;
 
 /**
  * Created by michealyang on 16/1/24.

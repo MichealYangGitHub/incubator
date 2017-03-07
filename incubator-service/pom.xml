@@ -18,6 +18,10 @@
             <groupId>com.michealyang</groupId>
             <artifactId>incubator-access</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.michealyang</groupId>
+            <artifactId>incubator-util</artifactId>
+        </dependency>
     </dependencies>
 
 
