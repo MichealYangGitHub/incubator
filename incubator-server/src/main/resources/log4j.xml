@@ -12,7 +12,7 @@
 
     <!--每天的日志文件-->
     <appender name="logfile" class="org.apache.log4j.DailyRollingFileAppender">
-        <param name="File" value="logs/springMvcBase2.log"/>
+        <param name="File" value="logs/incubator.log"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d %t [%p] (%c:%L) - %m%n"/>
         </layout>

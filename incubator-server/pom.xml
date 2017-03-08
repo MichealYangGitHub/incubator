@@ -64,7 +64,7 @@
     </dependencies>
 
     <build>
-        <finalName>SpringMVCBase2</finalName>
+        <finalName>incubator</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
