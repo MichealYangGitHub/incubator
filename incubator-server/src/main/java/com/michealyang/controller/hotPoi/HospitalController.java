@@ -45,31 +45,42 @@ public class HospitalController {
     @ResponseBody
     @RequestMapping("/r/hospitals")
     public Object getHospitals(Integer level) {
-        logger.info("[HospitalController.getHospitals] level=#{}", level);
+        try {
+            logger.info("[HospitalController.getHospitals] level=#{}", level);
 
-        Map<String, Object> conds = Maps.newHashMap();
-        if(null != level) {
-            conds.put("level", level);
+            Map<String, Object> conds = Maps.newHashMap();
+            if(null != level) {
+                conds.put("level", level);
+            }
+
+            List<Hospital> hospitals = hospitalService.getHospitalByConds(conds);
+
+            return JsonResponseUtil.successResp(Constants.SUCCESS, hospitals);
+        }catch (Exception e){
+            logger.error("[HospitalController.getHospitals]", e);
+            return JsonResponseUtil.failureResp(Constants.SYS_FAILURE, null);
         }
 
-        List<Hospital> hospitals = hospitalService.getHospitalByConds(conds);
-
-        return JsonResponseUtil.successResp(Constants.SUCCESS, hospitals);
     }
 
     @ResponseBody
     @RequestMapping("/w/add")
     public Object addHospitals(Hospital hospital){
-        logger.info("[HospitalController.addHospitals] hospital=#{}", hospital);
-        if(hospital == null
-                || (StringUtils.isEmpty(hospital.getName()) && StringUtils.isEmpty(hospital.getAlias()))
-                || StringUtils.isEmpty(hospital.getLnglat())) {
-            return JsonResponseUtil.failureResp("关键信息为空", null);
+        try {
+            logger.info("[HospitalController.addHospitals] hospital=#{}", hospital);
+            if (hospital == null
+                    || (StringUtils.isEmpty(hospital.getName()) && StringUtils.isEmpty(hospital.getAlias()))
+                    || StringUtils.isEmpty(hospital.getLnglat())) {
+                return JsonResponseUtil.failureResp("关键信息为空", null);
+            }
+            ResultDto resultDto = hospitalService.insert(hospital);
+            if (!resultDto.isSuccess()) {
+                return JsonResponseUtil.failureResp(resultDto.getMsg(), null);
+            }
+            return JsonResponseUtil.successResp(Constants.SUCCESS, null);
+        }catch (Exception e){
+            logger.error("[HospitalController.addHospitals]", e);
+            return JsonResponseUtil.failureResp(Constants.SYS_FAILURE, null);
         }
-        ResultDto resultDto = hospitalService.insert(hospital);
-        if(!resultDto.isSuccess()){
-            return JsonResponseUtil.failureResp(resultDto.getMsg(), null);
-        }
-        return JsonResponseUtil.successResp(Constants.SUCCESS, null);
     }
 }
