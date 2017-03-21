@@ -61,10 +61,6 @@ public class LJHouseSpy {
         return new ResultDto(true, Constants.SUCCESS, url);
     }
 
-    public ResultDto crawlWholeSite(String url, ILJStrategy strategy, boolean isMobile) {
-        return null;
-    }
-
     /**
      * 使用指定的策略来抓取网页内容
      * <p>使用指定的spiderStrategy来爬取内容，然后使用convertor将爬取内容转换成统一格式，最后将数据写入到数据库</p>

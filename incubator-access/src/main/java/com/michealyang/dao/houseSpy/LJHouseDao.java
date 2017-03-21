@@ -1,7 +1,7 @@
 package com.michealyang.dao.houseSpy;
 
 import com.michealyang.domain.houseSpy.LJHouseInfo;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.InsertProvider;
 
 import static org.apache.ibatis.jdbc.SqlBuilder.*;
