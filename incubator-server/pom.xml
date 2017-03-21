@@ -39,6 +39,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>  <!-- is needed by DispathcerServlet &&  InternalResourceViewResolver   not spring-web -->
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>      <!-- is needed by Transaction -->
+        </dependency>
         <!-- Mysql Connector -->
         <dependency>
             <groupId>mysql</groupId>

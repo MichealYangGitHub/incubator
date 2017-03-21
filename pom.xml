@@ -62,6 +62,11 @@
                 <artifactId>spring-jdbc</artifactId>  <!-- is needed by DispathcerServlet &&  InternalResourceViewResolver   not spring-web -->
                 <version>${spring-version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>      <!-- is needed by Transaction -->
+                <version>${spring-version}</version>
+            </dependency>
             <!-- Mysql Connector -->
             <dependency>
                 <groupId>mysql</groupId>
@@ -90,6 +95,13 @@
                 <groupId>org.freemarker</groupId>
                 <artifactId>freemarker</artifactId>
                 <version>2.3.23</version>
+            </dependency>
+
+            <dependency>
+                <!-- jsoup HTML parser library @ http://jsoup.org/ -->
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.10.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -129,7 +141,12 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.7</version>
+            <version>1.2.29</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-version}</version>
         </dependency>
 
         <!-- junit -->
@@ -137,7 +154,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -213,6 +229,14 @@
                     <source>${java-version}</source>
                     <target>${java-version}</target>
                     <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <configuration>
+                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
         </plugins>

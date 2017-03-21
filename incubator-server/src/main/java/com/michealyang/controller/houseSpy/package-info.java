@@ -3,4 +3,4 @@
  * 2. 可订阅某一区域房源价格，了解该区域均价变动
  * Created by michealyang on 17/3/3.
  */
-package com.michealyang.controller.housePrice;
+package com.michealyang.controller.houseSpy;
