@@ -1,6 +1,6 @@
 package com.michealyang.dao;
 
-import com.michealyang.domain.TestUser;
+import com.michealyang.model.base.TestUser;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.springframework.stereotype.Repository;

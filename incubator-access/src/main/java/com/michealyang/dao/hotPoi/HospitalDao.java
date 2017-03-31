@@ -1,6 +1,6 @@
 package com.michealyang.dao.hotPoi;
 
-import com.michealyang.domain.hotPoi.Hospital;
+import com.michealyang.model.hotPoi.domain.Hospital;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.SelectProvider;

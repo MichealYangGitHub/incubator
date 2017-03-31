@@ -1,6 +1,6 @@
 package com.michealyang.controller;
 
-import com.michealyang.domain.TestUser;
+import com.michealyang.model.base.TestUser;
 import com.michealyang.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

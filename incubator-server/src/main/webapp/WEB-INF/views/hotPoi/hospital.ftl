@@ -62,6 +62,5 @@
 <script type="text/javascript">
     $(document).ready(function(){
         HospitalProxy.initMap();
-
     });
 </script>

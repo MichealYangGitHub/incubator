@@ -1,18 +1,18 @@
-package com.michealyang.domain.houseSpy;
+package com.michealyang.model.houseSpy.domain;
 
 /**
  * Created by michealyang on 17/3/16.
  */
-public class LJHouseInfo {
+public class LJHouse {
     private Integer id;
-    private String houseId;
+    private long houseId;
     private String title;
-    private int total;  //总价
     private float area; //面积
-    private float unitPrice;    //单价
     private String houseType;   //房型
     private String community;   //小区
     private int offShelf;   //是否已经下架
+    private String imgs;    //房源图片
+    private String url; //房源链接
     private int builtYear;  //建造年代
     private int ctime;  //创建时间
 
@@ -26,11 +26,11 @@ public class LJHouseInfo {
         this.id = id;
     }
 
-    public String getHouseId() {
+    public long getHouseId() {
         return houseId;
     }
 
-    public void setHouseId(String houseId) {
+    public void setHouseId(long houseId) {
         this.houseId = houseId;
     }
 
@@ -42,28 +42,12 @@ public class LJHouseInfo {
         this.title = title;
     }
 
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
-    }
-
     public float getArea() {
         return area;
     }
 
     public void setArea(float area) {
         this.area = area;
-    }
-
-    public float getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(float unitPrice) {
-        this.unitPrice = unitPrice;
     }
 
     public String getHouseType() {
@@ -98,6 +82,22 @@ public class LJHouseInfo {
         this.offShelf = offShelf;
     }
 
+    public String getImgs() {
+        return imgs;
+    }
+
+    public void setImgs(String imgs) {
+        this.imgs = imgs;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public int getCtime() {
         return ctime;
     }
@@ -112,12 +112,12 @@ public class LJHouseInfo {
                 "id=" + id +
                 ", houseId='" + houseId + '\'' +
                 ", title='" + title + '\'' +
-                ", total=" + total +
                 ", area=" + area +
-                ", unitPrice=" + unitPrice +
                 ", houseType='" + houseType + '\'' +
                 ", community='" + community + '\'' +
                 ", offShelf=" + offShelf +
+                ", imgs='" + imgs + '\'' +
+                ", url='" + url + '\'' +
                 ", builtYear=" + builtYear +
                 ", ctime=" + ctime +
                 '}';

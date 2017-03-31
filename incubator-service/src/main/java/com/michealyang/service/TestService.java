@@ -1,7 +1,7 @@
 package com.michealyang.service;
 
 import com.michealyang.dao.TestDao;
-import com.michealyang.domain.TestUser;
+import com.michealyang.model.base.TestUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

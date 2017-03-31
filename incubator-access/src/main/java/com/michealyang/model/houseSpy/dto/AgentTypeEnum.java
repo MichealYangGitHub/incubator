@@ -1,4 +1,4 @@
-package com.michealyang.dto;
+package com.michealyang.model.houseSpy.dto;
 
 /**
  * Created by michealyang on 17/3/17.

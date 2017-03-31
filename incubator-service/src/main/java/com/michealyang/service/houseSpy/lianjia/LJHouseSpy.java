@@ -2,10 +2,13 @@ package com.michealyang.service.houseSpy.lianjia;
 
 import com.google.common.base.Preconditions;
 import com.michealyang.dao.houseSpy.LJHouseDao;
-import com.michealyang.domain.houseSpy.LJHouseInfo;
-import com.michealyang.domain.houseSpy.mySpider.MyResponse;
-import com.michealyang.dto.AgentTypeEnum;
-import com.michealyang.dto.ResultDto;
+import com.michealyang.dao.houseSpy.LJHouseTraceDao;
+import com.michealyang.model.base.dto.ResultDto;
+import com.michealyang.model.houseSpy.domain.LJHouse;
+import com.michealyang.model.houseSpy.domain.LJHouseTrace;
+import com.michealyang.model.houseSpy.domain.mySpider.MyResponse;
+import com.michealyang.model.houseSpy.dto.AgentTypeEnum;
+import com.michealyang.model.houseSpy.dto.LJHouseInfo;
 import com.michealyang.service.houseSpy.IConvertor;
 import com.michealyang.service.houseSpy.MyHouseSpyHelper;
 import com.michealyang.service.houseSpy.lianjia.processor.LJMySpiderConvertorForMobile;
@@ -17,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -33,11 +37,15 @@ public class LJHouseSpy {
     @Resource
     private LJHouseDao ljHouseDao;
 
+    @Resource
+    private LJHouseTraceDao ljHouseTraceDao;
+
     /**
      * 抓取单个house内容，包含web版和mobile版
      * @param url   链接房源地址url。会对有效性进行校验
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     public ResultDto crawlOneHouse(String url) {
         logger.info("[LJHouseSpy.crawlOneHouse] url=#{}", url);
         Preconditions.checkArgument(StringUtils.isNotBlank(url));
@@ -81,9 +89,28 @@ public class LJHouseSpy {
             return resultDto == null ? new ResultDto(false, "结果为空") : resultDto;
         }
         LJHouseInfo ljHouseInfo = (LJHouseInfo)convertor.doAction(resultDto.getData());
-
-        if(ljHouseDao.insert(ljHouseInfo) <= 0) {
-            return new ResultDto(false, Constants.SYS_FAILURE);
+        if(ljHouseInfo == null) {
+            return new ResultDto(false, "网页解析失败");
+        }
+        if(ljHouseDao.lock(ljHouseInfo.getHouseId()) == 0){ //不存在该房源的记录
+            logger.info("[doCrawl] 第一次爬取房源。houseId=#{}", ljHouseInfo.getHouseId());
+            LJHouse ljHouse = myHouseSpyHelper.convertLJHouseInfo2LJHouse(ljHouseInfo);
+            if(ljHouseDao.insert(ljHouse) <= 0){
+                logger.error("[doCrawl] LJHouse数据库插入失败。ljHouse=#{}", ljHouse);
+                return new ResultDto(false, Constants.SYS_FAILURE);
+            }
+            LJHouseTrace ljHouseTrace = myHouseSpyHelper.convertLJHouseInfo2LJHouseTrace(ljHouseInfo);
+            if(ljHouseTraceDao.insert(ljHouseTrace) <= 0){
+                logger.error("[doCrawl] LJHouseTrace数据库插入失败。ljHouseTrace=#{}", ljHouseTrace);
+                return new ResultDto(false, Constants.SYS_FAILURE);
+            }
+        }else{
+            logger.info("[doCrawl] 已存在房源。houseId=#{}", ljHouseInfo.getHouseId());
+            LJHouseTrace ljHouseTrace = myHouseSpyHelper.convertLJHouseInfo2LJHouseTrace(ljHouseInfo);
+            if(ljHouseTraceDao.insert(ljHouseTrace) <= 0){
+                logger.error("[doCrawl] LJHouseTrace数据库插入失败。ljHouseTrace=#{}", ljHouseTrace);
+                return new ResultDto(false, Constants.SYS_FAILURE);
+            }
         }
 
         return new ResultDto(true, Constants.SUCCESS);

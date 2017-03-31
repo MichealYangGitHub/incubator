@@ -1,4 +1,4 @@
-package com.michealyang.domain.houseSpy.mySpider;
+package com.michealyang.model.houseSpy.domain.mySpider;
 
 /**
  * Created by michealyang on 17/3/17.

@@ -2,8 +2,8 @@ package com.michealyang.service.hotPoi;
 
 import com.google.common.base.Preconditions;
 import com.michealyang.dao.hotPoi.HospitalDao;
-import com.michealyang.domain.hotPoi.Hospital;
-import com.michealyang.dto.ResultDto;
+import com.michealyang.model.hotPoi.domain.Hospital;
+import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.util.Constants;
 import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;

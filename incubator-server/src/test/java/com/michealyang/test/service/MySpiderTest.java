@@ -1,7 +1,7 @@
 package com.michealyang.test.service;
 
-import com.michealyang.domain.houseSpy.mySpider.MyRequest;
-import com.michealyang.domain.houseSpy.mySpider.MyResponse;
+import com.michealyang.model.houseSpy.domain.mySpider.MyRequest;
+import com.michealyang.model.houseSpy.domain.mySpider.MyResponse;
 import com.michealyang.service.houseSpy.spider.mySpider.MySpider;
 import org.junit.Test;
 import org.junit.runner.RunWith;

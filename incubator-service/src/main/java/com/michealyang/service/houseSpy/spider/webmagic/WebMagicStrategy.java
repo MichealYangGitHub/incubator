@@ -1,6 +1,6 @@
 package com.michealyang.service.houseSpy.spider.webmagic;
 
-import com.michealyang.dto.ResultDto;
+import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.service.houseSpy.spider.ISiteUrlStrategy;
 import com.michealyang.service.houseSpy.spider.SpiderStrategy;
 

@@ -1,6 +1,6 @@
 package com.michealyang.service.houseSpy.spider;
 
-import com.michealyang.dto.ResultDto;
+import com.michealyang.model.base.dto.ResultDto;
 
 /**
  * Created by michealyang on 17/3/19.

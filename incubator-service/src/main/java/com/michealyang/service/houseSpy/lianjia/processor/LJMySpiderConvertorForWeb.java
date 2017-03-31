@@ -1,20 +1,23 @@
 package com.michealyang.service.houseSpy.lianjia.processor;
 
 import com.google.common.base.Preconditions;
-import com.michealyang.domain.houseSpy.LJHouseInfo;
-import com.michealyang.domain.houseSpy.mySpider.MyDocument;
-import com.michealyang.domain.houseSpy.mySpider.MyResponse;
+import com.google.common.collect.Lists;
+import com.michealyang.model.houseSpy.domain.mySpider.MyDocument;
+import com.michealyang.model.houseSpy.domain.mySpider.MyResponse;
+import com.michealyang.model.houseSpy.dto.LJHouseInfo;
 import com.michealyang.service.houseSpy.IConvertor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,8 +37,11 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
 
         LJHouseInfo ljHouseInfo = new LJHouseInfo();
         MyDocument myDocument = data.getResponseBody();
+        ljHouseInfo.setUrl(data.getUrl());
         ljHouseInfo.setHouseId(getHouseId(data.getUrl()));
         Document doc = myDocument.getJsoupDoucument();
+
+        ljHouseInfo.setImgs(getImgs(doc));
 
         Elements price = doc.select("div.price");
         if(CollectionUtils.isEmpty(price)){
@@ -92,14 +98,14 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
         return ljHouseInfo;
     }
 
-    private String getHouseId(String url) {
+    private long getHouseId(String url) {
         Preconditions.checkArgument(StringUtils.isNotBlank(url));
         Pattern p= Pattern.compile("\\d+");
         Matcher m=p.matcher(url);
         if(m.find()) {
-            return m.group();
+            return Long.valueOf(m.group());
         }
-        return "";
+        return 0l;
     }
 
     private float getArea(String area) {
@@ -109,6 +115,26 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
             return Float.valueOf(m.group());
         }
         return 0.0f;
+    }
+
+    private String getImgs(Document doc){
+        Elements picUls = doc.select(".smallpic");
+        if(CollectionUtils.isEmpty(picUls)) return "";
+        Elements lis = picUls.get(0).select("li");
+        if(CollectionUtils.isEmpty(lis)) return "";
+
+        List<String> urls = Lists.newArrayList();
+        for(Element li : lis){
+            if(li == null) continue;
+            String url = li.attr("data-src");
+            if(StringUtils.isBlank(url)) continue;
+            urls.add(url);
+        }
+
+        if(CollectionUtils.isNotEmpty(urls)) {
+            return StringUtils.join(urls, ",");
+        }
+        return "";
     }
 
 
@@ -132,13 +158,16 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
 //        Element communityEle = elements2.get(3);
 //        String community = communityEle.select("a").text().substring(3);
 
-        MyResponse response = new MyResponse();
-        response.setUrl("https://m.lianjia.com/bj/ershoufang/101101194178.html");
-        MyDocument myDocument = new MyDocument();
-        myDocument.setJsoupDoucument(doc);
-        response.setResponseBody(myDocument);
+//        MyResponse response = new MyResponse();
+//        response.setUrl("https://m.lianjia.com/bj/ershoufang/101101194178.html");
+//        MyDocument myDocument = new MyDocument();
+//        myDocument.setJsoupDoucument(doc);
+//        response.setResponseBody(myDocument);
+//
+//        LJHouseInfo ljHouse = new LJMySpiderConvertorForWeb().doAction(response);
 
-        LJHouseInfo ljHouseInfo = new LJMySpiderConvertorForWeb().doAction(response);
+        LJMySpiderConvertorForWeb web = new LJMySpiderConvertorForWeb();
+        System.out.println(web.getImgs(doc));
 
     }
 }

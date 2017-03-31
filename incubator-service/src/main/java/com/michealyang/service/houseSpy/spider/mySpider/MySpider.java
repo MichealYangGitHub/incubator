@@ -2,9 +2,9 @@ package com.michealyang.service.houseSpy.spider.mySpider;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import com.michealyang.domain.houseSpy.mySpider.MyDocument;
-import com.michealyang.domain.houseSpy.mySpider.MyRequest;
-import com.michealyang.domain.houseSpy.mySpider.MyResponse;
+import com.michealyang.model.houseSpy.domain.mySpider.MyDocument;
+import com.michealyang.model.houseSpy.domain.mySpider.MyRequest;
+import com.michealyang.model.houseSpy.domain.mySpider.MyResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;

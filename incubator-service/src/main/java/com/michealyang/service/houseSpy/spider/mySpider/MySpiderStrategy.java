@@ -1,8 +1,8 @@
 package com.michealyang.service.houseSpy.spider.mySpider;
 
-import com.michealyang.domain.houseSpy.mySpider.MyRequest;
-import com.michealyang.domain.houseSpy.mySpider.MyResponse;
-import com.michealyang.dto.ResultDto;
+import com.michealyang.model.houseSpy.domain.mySpider.MyRequest;
+import com.michealyang.model.houseSpy.domain.mySpider.MyResponse;
+import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.service.houseSpy.spider.ISiteUrlStrategy;
 import com.michealyang.service.houseSpy.spider.SpiderStrategy;
 import com.michealyang.util.Constants;

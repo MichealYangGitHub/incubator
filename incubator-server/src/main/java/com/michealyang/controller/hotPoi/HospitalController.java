@@ -1,8 +1,8 @@
 package com.michealyang.controller.hotPoi;
 
 import com.google.common.collect.Maps;
-import com.michealyang.domain.hotPoi.Hospital;
-import com.michealyang.dto.ResultDto;
+import com.michealyang.model.hotPoi.domain.Hospital;
+import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.service.hotPoi.HospitalService;
 import com.michealyang.util.Constants;
 import com.michealyang.util.JsonResponseUtil;

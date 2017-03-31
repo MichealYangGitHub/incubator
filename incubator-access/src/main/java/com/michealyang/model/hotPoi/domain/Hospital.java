@@ -1,4 +1,4 @@
-package com.michealyang.domain.hotPoi;
+package com.michealyang.model.hotPoi.domain;
 
 /**
  * Created by michealyang on 17/3/3.
