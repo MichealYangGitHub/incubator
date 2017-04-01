@@ -7,6 +7,7 @@ import com.michealyang.model.houseSpy.dto.LJHouseInfoDto;
 import com.michealyang.service.houseSpy.MyHouseSpyHelper;
 import com.michealyang.service.houseSpy.lianjia.LJHouseService;
 import com.michealyang.service.houseSpy.lianjia.LJHouseSpy;
+import com.michealyang.service.schedule.SpyAction;
 import com.michealyang.util.Constants;
 import com.michealyang.util.JsonResponseUtil;
 import org.slf4j.Logger;
@@ -36,6 +37,9 @@ public class LJHouseSpyController {
 
     @Resource
     private MyHouseSpyHelper myHouseSpyHelper;
+
+    @Resource
+    private SpyAction spyAction;
 
     @RequestMapping("/r/index")
     public String index(Model model) {
@@ -103,6 +107,19 @@ public class LJHouseSpyController {
                 return JsonResponseUtil.failureResp(resultDto.getMsg(), null);
             }
             return JsonResponseUtil.successResp(Constants.SUCCESS, null);
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping("/admin/spyGo")
+    public Object spyGo(){
+        logger.info("[spyGo] 强制开始爬取任务");
+        try {
+            spyAction.go();
+            return JsonResponseUtil.successResp(Constants.SUCCESS, null);
+        } catch (InterruptedException e) {
+            logger.info("[spyGo] Exception=#{}", e);
+            return JsonResponseUtil.successResp(Constants.FAILURE, e.getMessage());
         }
     }
 }

@@ -95,11 +95,16 @@ public class LJHouseSpy {
         if(ljHouseDao.lock(ljHouseInfo.getHouseId()) == 0){ //不存在该房源的记录
             logger.info("[doCrawl] 第一次爬取房源。houseId=#{}", ljHouseInfo.getHouseId());
             LJHouse ljHouse = myHouseSpyHelper.convertLJHouseInfo2LJHouse(ljHouseInfo);
+            LJHouseTrace ljHouseTrace = myHouseSpyHelper.convertLJHouseInfo2LJHouseTrace(ljHouseInfo);
+
+            if(ljHouse.getOffShelf() != 0) {    //如果房源已经下架，则保存其最终价格
+                logger.info("[doCrawl] 该房源已下架. houseId=#{}", ljHouseInfo.getHouseId());
+                ljHouse.setFinalTotal(ljHouseTrace.getTotal());
+            }
             if(ljHouseDao.insert(ljHouse) <= 0){
                 logger.error("[doCrawl] LJHouse数据库插入失败。ljHouse=#{}", ljHouse);
                 return new ResultDto(false, Constants.SYS_FAILURE);
             }
-            LJHouseTrace ljHouseTrace = myHouseSpyHelper.convertLJHouseInfo2LJHouseTrace(ljHouseInfo);
             if(ljHouseTraceDao.insert(ljHouseTrace) <= 0){
                 logger.error("[doCrawl] LJHouseTrace数据库插入失败。ljHouseTrace=#{}", ljHouseTrace);
                 return new ResultDto(false, Constants.SYS_FAILURE);
@@ -107,6 +112,13 @@ public class LJHouseSpy {
         }else{
             logger.info("[doCrawl] 已存在房源。houseId=#{}", ljHouseInfo.getHouseId());
             LJHouseTrace ljHouseTrace = myHouseSpyHelper.convertLJHouseInfo2LJHouseTrace(ljHouseInfo);
+            if(ljHouseInfo.getOffShelf() != 0) { //如果房源已经下架，则更新LJHouse状态为下架状态
+                logger.info("[doCrawl] 该房源已下架. houseId=#{}", ljHouseInfo.getHouseId());
+                if (ljHouseDao.offShelfHouse(ljHouseInfo.getHouseId(), ljHouseTrace.getTotal()) <= 0) {
+                    logger.error("[doCrawl] 更新上下架状态失败！ljHouseInfo=#{}", ljHouseInfo);
+                    return new ResultDto(false, Constants.SYS_FAILURE);
+                }
+            }
             if(ljHouseTraceDao.insert(ljHouseTrace) <= 0){
                 logger.error("[doCrawl] LJHouseTrace数据库插入失败。ljHouseTrace=#{}", ljHouseTrace);
                 return new ResultDto(false, Constants.SYS_FAILURE);

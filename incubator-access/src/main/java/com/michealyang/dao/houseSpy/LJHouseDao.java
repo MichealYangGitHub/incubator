@@ -4,9 +4,7 @@ import com.michealyang.model.houseSpy.domain.LJHouse;
 import com.michealyang.model.houseSpy.dto.HouseSpyQuery;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +27,21 @@ public interface LJHouseDao {
 
     @SelectProvider(type = SqlProvider.class, method = "getHousesByConds")
     public List<LJHouse> getHousesByConds(Map<String, Object> conds);
+
+    @Select("select house_id from " + TABLE_NAME)
+    public List<Long> getAllHouseIds();
+
+    @Select("select house_id from " + TABLE_NAME + " where off_shelf=0")
+    public List<Long> getAllOnShelfHouseIds();
+
+    @Select("select url from " + TABLE_NAME)
+    public List<String> getAllUrls();
+
+    @Select("select url from " + TABLE_NAME + " where off_shelf=0")
+    public List<String> getAllOnShelfUrls();
+
+    @Update("update " + TABLE_NAME + " set final_total=#{finalTotal} where house_id=#{houseId}")
+    public int offShelfHouse(@Param("houseId") long houseId, @Param("finalTotal") int finalTotal);
 
     @InsertProvider(type = SqlProvider.class, method = "insert")
     public int insert(LJHouse houseInfo);
@@ -75,30 +88,34 @@ public interface LJHouseDao {
             return sql;
         }
 
-        public String insert(LJHouse houseInfo) {
+        public String insert(LJHouse ljHouse) {
             BEGIN();
 
             INSERT_INTO(TABLE_NAME);
-            if (houseInfo.getHouseId() != 0) {
+            if (ljHouse.getHouseId() != 0) {
                 VALUES("house_id", "#{houseId}");
             }
 
-            if (StringUtils.isNotBlank(houseInfo.getTitle())) {
+            if (StringUtils.isNotBlank(ljHouse.getTitle())) {
                 VALUES("title", "#{title}");
             }
 
+            if(ljHouse.getFinalTotal() != 0){
+                VALUES("final_total", "#{finalTotal}");
+            }
+
             VALUES("area", "#{area}");
-            if(StringUtils.isNotBlank(houseInfo.getHouseType())) {
+            if(StringUtils.isNotBlank(ljHouse.getHouseType())) {
                 VALUES("house_type", "#{houseType}");
             }
-            if (StringUtils.isNotBlank(houseInfo.getCommunity())) {
+            if (StringUtils.isNotBlank(ljHouse.getCommunity())) {
                 VALUES("community", "#{community}");
             }
-            if (StringUtils.isNotBlank(houseInfo.getUrl())) {
+            if (StringUtils.isNotBlank(ljHouse.getUrl())) {
                 VALUES("url", "#{url}");
             }
 
-            if (StringUtils.isNotBlank(houseInfo.getImgs())) {
+            if (StringUtils.isNotBlank(ljHouse.getImgs())) {
                 VALUES("imgs", "#{imgs}");
             }
 

@@ -10,6 +10,7 @@ public class LJHouse {
     private float area; //面积
     private String houseType;   //房型
     private String community;   //小区
+    private int finalTotal; //最终价格，房源下架以后展示
     private int offShelf;   //是否已经下架
     private String imgs;    //房源图片
     private String url; //房源链接
@@ -82,6 +83,14 @@ public class LJHouse {
         this.offShelf = offShelf;
     }
 
+    public int getFinalTotal() {
+        return finalTotal;
+    }
+
+    public void setFinalTotal(int finalTotal) {
+        this.finalTotal = finalTotal;
+    }
+
     public String getImgs() {
         return imgs;
     }
@@ -108,13 +117,14 @@ public class LJHouse {
 
     @Override
     public String toString() {
-        return "LJHouseInfo{" +
+        return "LJHouse{" +
                 "id=" + id +
-                ", houseId='" + houseId + '\'' +
+                ", houseId=" + houseId +
                 ", title='" + title + '\'' +
                 ", area=" + area +
                 ", houseType='" + houseType + '\'' +
                 ", community='" + community + '\'' +
+                ", finalTotal=" + finalTotal +
                 ", offShelf=" + offShelf +
                 ", imgs='" + imgs + '\'' +
                 ", url='" + url + '\'' +

@@ -40,6 +40,22 @@ public class LJHouseService {
         return false;
     }
 
+    public List<Long> getAllHouseIds() {
+        return ljHouseDao.getAllHouseIds();
+    }
+
+    public List<String> getAllUrls() {
+        return ljHouseDao.getAllUrls();
+    }
+
+    public List<Long> getAllOnShelfHouseIds(){
+        return ljHouseDao.getAllOnShelfHouseIds();
+    }
+
+    public List<String> getAllOnShelfUrls() {
+        return ljHouseDao.getAllOnShelfUrls();
+    }
+
     public List<LJHouseInfoDto> getHouseInfos(HouseSpyQuery query) {
         logger.info("[getHouseInfos] query=#{}", query);
         initQuery(query);
@@ -104,7 +120,7 @@ public class LJHouseService {
             ljHouseInfoDto.setLjHouse(ljHouse);
             List<LJHouseTrace> tmp = houseTraceMap.get(ljHouse.getHouseId());
             //存储经过hash后的traces
-            ljHouseInfoDto.setLjHouseTraces(hashHouseTrace(tmp, range));
+            ljHouseInfoDto.setLjHouseTraces(hashHouseTrace(ljHouse, tmp, range));
             ljHouseInfoDto.setTimeSpan(DateUtil.minusDaysArray(DateUtil.today(), range - 1));
             ljHouseInfoDtos.add(ljHouseInfoDto);
         }
@@ -140,12 +156,16 @@ public class LJHouseService {
      * 2. 同一天的，选取最后一次(指时间)价格做为最终值
      * 3. 最后结果list长度与range相同。如range为30，list长度也应该为30，没有数据的设置为0
      * </p>
+     * @param ljHouse 需要知道该房源是否已经下架。如果房源已下架，下架以后没有Trace数据，需要用finalTotal来补充
      * @param ljHouseTraces 需要保证都是同一个houseId的数据
      * @param range 时间范围，如30天，60天
      * @return
      */
-    private List<LJHouseTrace> hashHouseTrace(List<LJHouseTrace> ljHouseTraces, int range){
+    private List<LJHouseTrace> hashHouseTrace(LJHouse ljHouse, List<LJHouseTrace> ljHouseTraces, int range){
+        logger.info("[mappingHouseTrace] ljHouse=#{}", ljHouse);
+        Preconditions.checkArgument(ljHouse != null);
         if(CollectionUtils.isEmpty(ljHouseTraces)) return ljHouseTraces;
+
         List<LJHouseTrace> hashedLjHouseTraces = Lists.newArrayListWithExpectedSize(range);
         String today = DateUtil.today();
         List<String> daysArray = DateUtil.minusDaysArray(today, range - 1);
@@ -163,6 +183,21 @@ public class LJHouseService {
 
         for(String day : daysArray) {
             hashedLjHouseTraces.add(dateTraceMap.get(day));
+        }
+
+        //如果已经下架，则把后面没有爬取的数据填充为finalTotal数据
+        if(ljHouse.getOffShelf() != 0) {
+            for (int i = daysArray.size() - 1; i >= 0; i--) {
+                LJHouseTrace ljHouseTrace = hashedLjHouseTraces.get(i);
+                if(ljHouseTrace != null){
+                    break;
+                }
+                ljHouseTrace = new LJHouseTrace();
+                ljHouseTrace.setHouseId(ljHouse.getHouseId());
+                ljHouseTrace.setTotal(ljHouse.getFinalTotal());
+                ljHouseTrace.setUnitPrice(ljHouse.getFinalTotal() / ljHouse.getArea());
+                hashedLjHouseTraces.set(i, ljHouseTrace);
+            }
         }
 
         return hashedLjHouseTraces;
