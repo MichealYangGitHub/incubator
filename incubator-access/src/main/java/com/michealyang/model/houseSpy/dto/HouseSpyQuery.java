@@ -14,6 +14,8 @@ public class HouseSpyQuery {
     private String endTime;
     //查询的时间范围，从当前时间往前推range天
     private Integer range;
+    //小区名
+    private String community;
 
     private Integer pageNum;
     private Integer pageSize;
@@ -83,6 +85,14 @@ public class HouseSpyQuery {
         this.offset = offset;
     }
 
+    public String getCommunity() {
+        return community;
+    }
+
+    public void setCommunity(String community) {
+        this.community = community;
+    }
+
     @Override
     public String toString() {
         return "HouseSpyQuery{" +
@@ -91,6 +101,7 @@ public class HouseSpyQuery {
                 ", startTime='" + startTime + '\'' +
                 ", endTime='" + endTime + '\'' +
                 ", range=" + range +
+                ", community='" + community + '\'' +
                 ", pageNum=" + pageNum +
                 ", pageSize=" + pageSize +
                 ", offset=" + offset +

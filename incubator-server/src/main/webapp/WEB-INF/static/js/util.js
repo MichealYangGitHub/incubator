@@ -179,3 +179,19 @@ var JSBasic = {
             typeof obj;
     }
 }
+
+var KeyboardUtil = {
+    //绑定回车响应
+    bindEnter: function($dom){
+        document.onkeydown=function keyListener(e){
+            //  当按下回车键，执行我们的代码
+            if(e.keyCode == 13){
+                $dom.click();
+            }
+        }
+    },
+    //解绑回车响应
+    unbindEnter: function(){
+        document.onkeydown=null;
+    }
+}

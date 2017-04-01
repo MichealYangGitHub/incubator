@@ -2,20 +2,54 @@
  * Created by michealyang on 17/3/6.
  */
 
+
+//点击显示addModal
 $("#fix-add").click(function(){
     var $addModal = $("#addModal");
     $("#addModal input[name=url]").val("");
+    $("#addModal input[name=url]").focus();
     $addModal.modal("show");
 })
 
+$("body").on("click", "#emptyDate a", function(){
+    var $addModal = $("#addModal");
+    $("#addModal input[name=url]").val("");
+    $("#addModal input[name=url]").focus();
+    $addModal.modal("show");
+})
+
+//监听addModal显示，bind回车响应
+$("body").on('shown.bs.modal', "#addModal", function (e) {
+    KeyboardUtil.bindEnter($("#addModal button[name=addModal-confirm]"));
+});
+
+//监听addModal显示，unbind回车响应
+$("body").on('hidden.bs.modal', "#addModal", function (e) {
+    KeyboardUtil.unbindEnter();
+});
+
+//监听搜索框被focus时，bind回车响应
+$("body").on("focus", "#nav-search input[name=search]", function(e){
+    KeyboardUtil.bindEnter($("#nav-search #nav-search-btn"))
+})
+
+//搜索框不被focus时，unbind回车响应
+$("body").on("blur", "#nav-search input[name=search]", function(e){
+    KeyboardUtil.unbindEnter();
+})
+
+//搜索按钮
+$("#nav-search #nav-search-btn").click(function(){
+    var content = $.trim($("#nav-search input[name=search]").val());
+    LJHouseSpyProxy.getHouseInfo(content);
+});
+
+
+//addModal确认按钮响应
 $("#addModal button[name=addModal-confirm]").click(function(){
     var url = $.trim($("#addModal input[name=url]").val());
-    if(url == ""){
-        DlgProxy.swalSimpleError("请填写url");
-        return;
-    }
     $("#loading").removeClass('hidden');
-    window.setTimeout(function(){
+    var wait = window.setTimeout(function(){
         $("#loading").addClass('hidden');
         DlgProxy.swalSimpleError("响应超时");
     }, 10000)
@@ -23,9 +57,13 @@ $("#addModal button[name=addModal-confirm]").click(function(){
     var resp = AjaxProxy.queryByPost(queryUrl, {"url": url});
     if(!resp.success){
         DlgProxy.swalSimpleError(resp.msg);
+        $("#loading").addClass('hidden');
+        window.clearTimeout(wait);
         return;
     }
     DlgProxy.swalSimpleSuccess(resp.msg);
+    $("#loading").addClass('hidden');
+    window.clearTimeout(wait);
     window.setTimeout(function(){
         window.location.reload();
     }, 1000)
@@ -34,8 +72,19 @@ $("#addModal button[name=addModal-confirm]").click(function(){
 
 
 var LJHouseSpyProxy = {
-    getHouseInfo : function(){
-        var url = "/houseSpy/lianjia/r/list";
+    showAll: false,  //一个全局的flag
+    getHouseInfo : function(community){
+        var url = "/houseSpy/lianjia/r/list?community=" + community;
+        if(community == ""){
+            if(this.showAll){
+                return;
+            }else{
+                this.showAll = true;
+            }
+        }else{
+            this.showAll = false;
+        }
+
         var resp = AjaxProxy.queryByGet(url);
         if(!resp.success){
             DlgProxy.swalSimpleError(resp.msg);
@@ -44,6 +93,11 @@ var LJHouseSpyProxy = {
         var houseInfos = resp.data;
         if(JSBasic._typeof(houseInfos) != "array"){
             DlgProxy.swalSimpleError("数据格式错误");
+            return;
+        }
+
+        if(houseInfos.length == 0){
+            this.showEmptyInfo();
             return;
         }
 
@@ -124,6 +178,19 @@ var LJHouseSpyProxy = {
 
             LJHouseSpyProxy.showTraces(chartId, ljHouseTraces, e.timeSpan);
         })
+    },
+
+    showEmptyInfo: function(){
+        var $houseInfos = $("#houseInfos");
+        $houseInfos.html("");
+        var template = '\
+        <div id="emptyDate"> \
+            <div class="text-center mg-top-10vh"> \
+                <img src="http://onice2szs.bkt.clouddn.com/illust-404.png"> \
+            </div> \
+            <div class="text-center mg-top-5vh ft-size-20">没有想要的数据？<span><a href="javascript:void(0)">快来添加监控吧>></a></span></div> \
+        </div>';
+        $houseInfos.append(template);
     },
 
     showTraces : function(chartId, traces, timeSpan){

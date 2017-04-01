@@ -2,3 +2,15 @@
 .ft-red {
     color: red;
 }
+
+.mg-top-5vh{
+    margin-top: 5vh;
+}
+
+.mg-top-10vh{
+    margin-top: 10vh;
+}
+
+.ft-size-20{
+    font-size: 20px;
+}

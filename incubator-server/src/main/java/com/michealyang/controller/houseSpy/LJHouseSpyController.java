@@ -52,6 +52,7 @@ public class LJHouseSpyController {
     @ResponseBody
     @RequestMapping("/r/list")
     public Object list(HouseSpyQuery query) {
+        logger.info("[list] query=#{}", query);
         List<LJHouseInfoDto> ljHouseInfoDtos = ljHouseService.getHouseInfos(query);
 
         return JsonResponseUtil.successResp(Constants.SUCCESS, ljHouseInfoDtos);

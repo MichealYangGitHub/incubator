@@ -45,7 +45,15 @@ public class LJHouseService {
         initQuery(query);
         logger.info("[getHouseInfos] query after init=#{}", query);
 
-        List<LJHouse> ljHouses = ljHouseDao.getHouses(query);
+        Map<String, Object> conds = Maps.newHashMap();
+        conds.put("houseId", query.getHouseId());
+//        conds.put("startTime", query.getStartTime());
+//        conds.put("endTime", query.getEndTime());
+        conds.put("community", query.getCommunity());
+
+        List<LJHouse> ljHouses = ljHouseDao.getHousesByConds(conds);
+
+//        List<LJHouse> ljHouses = ljHouseDao.getHouses(query);
 
         return fillHouseTrace(ljHouses, query);
     }

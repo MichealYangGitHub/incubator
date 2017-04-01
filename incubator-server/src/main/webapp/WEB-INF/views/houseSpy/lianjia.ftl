@@ -72,8 +72,6 @@
 </style>
 <body>
     <nav id="indexNav" class="navbar navbar-inverse">
-        <input id="navType" type="text" value="${type!''}" class="hidden">
-        <input id="navUrl" type="text" value="${url!''}" class="hidden">
         <div class="container-fluid">
             <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
@@ -92,11 +90,11 @@
                     <li name="nav-allHouses" class="active"><a href="javascript:void(0)">全部<span class="sr-only">(current)</span></a></li>
                     <li name="nav-myConcern" ><a href="javascript:void(0)">我的关注</a></li>
                 </ul>
-                <div class="navbar-form navbar-left hidden-xs" role="search" action="javascript:void(0);">
+                <div id="nav-search" class="navbar-form navbar-left hidden-xs" role="search" action="javascript:void(0);">
                     <div class="input-group" style="width: 520px">
-                        <input type="text" name="search" class="form-control" placeholder="搜索房源" tabindex="3">
+                        <input type="text" name="search" class="form-control" placeholder="输入小区名称" tabindex="3">
                     <span class="input-group-btn">
-                        <button id="nav-search" class="btn btn-default btn-icon" type="submit"><i class="fa fa-search"></i></button>
+                        <button id="nav-search-btn" class="btn btn-default btn-icon" type="submit"><i class="fa fa-search"></i></button>
                     </span>
 
                     </div>
@@ -115,13 +113,13 @@
             </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
     </nav>
-    <div class="navbar-default navbar visible-xs hidden-print">
+    <div id="nav-search" class="navbar-default navbar visible-xs hidden-print">
         <form class="js-search-form" role="search" action="javascript:void(0);">
             <div class="input-group" style="padding: 15px;">
-                <input id="nav-search" type="text" name="search" class="form-control" placeholder="搜索房源" tabindex="3">
-      <span class="input-group-btn">
-        <button class="btn btn-default btn-icon" type="submit"><i class="fa fa-search"></i></button>
-      </span>
+                <input id="nav-search-btn" type="text" name="search" class="form-control" placeholder="搜索房源" tabindex="3">
+                <span class="input-group-btn">
+                    <button class="btn btn-default btn-icon" type="submit"><i class="fa fa-search"></i></button>
+                </span>
             </div>
         </form>
     </div>
@@ -176,7 +174,7 @@
 <link href="/static/css/base.css" rel="stylesheet">
 <script type="application/javascript">
     $(document).ready(function(){
-        LJHouseSpyProxy.getHouseInfo();
+        LJHouseSpyProxy.getHouseInfo("");
     });
 
     $(".houseInfo").hover(function(){

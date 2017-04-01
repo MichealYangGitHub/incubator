@@ -23,6 +23,7 @@ public interface LJHouseDao {
     @Update("update " + TABLE_NAME + " set valid=valid where house_id=#{houseId}")
     public int lock(Long houseId);
 
+    @Deprecated
     @SelectProvider(type = SqlProvider.class, method = "getHouses")
     public List<LJHouse> getHouses(HouseSpyQuery query);
 
@@ -45,6 +46,12 @@ public interface LJHouseDao {
             if(conds.get("houseId") != null){
                 WHERE("house_id=#{houseId}");
             }
+
+            if(conds.get("community") != null){
+                WHERE("community like \"%\"#{community}\"%\"");
+            }
+
+            ORDER_BY("id desc");
 
             String sql = SQL();
             if(conds.get("offset") != null && conds.get("pageSize") != null){
