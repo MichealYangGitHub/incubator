@@ -41,10 +41,28 @@ public class LJMySpiderConvertorForMobile implements IConvertor<MyResponse, LJHo
         MyDocument myDocument = data.getResponseBody();
         ljHouseInfo.setUrl(data.getUrl());
         ljHouseInfo.setHouseId(getHouseId(data.getUrl()));
-        Document doc = myDocument.getJsoupDoucument();
+        ljHouseInfo.setTitle(myDocument.getTitle() == null ? "" : myDocument.getTitle());
 
+        Document doc = myDocument.getJsoupDoucument();
         ljHouseInfo.setImgs(getImgs(doc));
 
+        //是否下架
+        Elements dealedTag = doc.select("div.signed_logo");     //成交标识
+        if(CollectionUtils.isNotEmpty(dealedTag)) {
+            return parseDealed(ljHouseInfo, doc);
+        }else {
+            return parseNormal(ljHouseInfo, doc);
+        }
+    }
+
+    /**
+     * 解析普通页面和下架页面
+     * @param ljHouseInfo
+     * @param doc
+     * @return
+     */
+    private LJHouseInfo parseNormal(LJHouseInfo ljHouseInfo, Document doc){
+        logger.info("[parseNormal]");
         Elements redBig = doc.select("p.red");
         if(CollectionUtils.isEmpty(redBig) || redBig.size() != 3){
             logger.error("[doAction] 链家格式有改动，请确认 - red big 找不到");
@@ -56,6 +74,7 @@ public class LJMySpiderConvertorForMobile implements IConvertor<MyResponse, LJHo
             logger.error("[doAction] 链家格式有改动，请确认 - total获取失败");
             return null;
         }
+        ljHouseInfo.setTotal(getTotal(total.text()));
 
         //房型
         Element houseType = redBig.get(1);
@@ -64,9 +83,7 @@ public class LJMySpiderConvertorForMobile implements IConvertor<MyResponse, LJHo
         //面积
         Element area = redBig.get(2);
 
-        ljHouseInfo.setTitle(myDocument.getTitle() == null ? "" : myDocument.getTitle());
         ljHouseInfo.setArea(getArea(area.text()));
-        ljHouseInfo.setTotal(getTotal(total.text()));
         //单价
         ljHouseInfo.setUnitPrice(ljHouseInfo.getTotal() / ljHouseInfo.getArea() * 10000);
 
@@ -90,12 +107,38 @@ public class LJMySpiderConvertorForMobile implements IConvertor<MyResponse, LJHo
         String community = communityEle.select("a").text().substring(3);
         ljHouseInfo.setCommunity(community);
 
-        //是否下架
-        Elements offShelfTag = doc.select("img.remove_tag");
+
+        Elements offShelfTag = doc.select("img.remove_tag");    //下架标识
         if(CollectionUtils.isNotEmpty(offShelfTag)){
             ljHouseInfo.setOffShelf(1);
         }
 
+        return ljHouseInfo;
+    }
+
+    /**
+     * 解析成效后的页面
+     * <p>这种情况下，只取到total就行了</p>
+     * @param ljHouseInfo
+     * @param doc
+     * @return
+     */
+    private LJHouseInfo parseDealed(LJHouseInfo ljHouseInfo, Document doc){
+        logger.info("[parseDealed]");
+        ljHouseInfo.setOffShelf(1);
+        Elements redBig = doc.select("p.red");
+        if(CollectionUtils.isEmpty(redBig) || redBig.size() != 2){
+            logger.error("[doAction] 链家格式有改动，请确认 - red big 找不到");
+            return null;
+        }
+        //总价
+        Elements total = redBig.select("span[data-mark=price]");
+        if(total.size() == 0){
+            logger.error("[doAction] 链家格式有改动，请确认 - total获取失败");
+            return null;
+        }
+        ljHouseInfo.setTotal(getTotal(total.text()));
+        ljHouseInfo.setUnitPrice(getDealedUnitPrice(redBig.get(1).text()));
         return ljHouseInfo;
     }
 
@@ -130,6 +173,20 @@ public class LJMySpiderConvertorForMobile implements IConvertor<MyResponse, LJHo
     private int getBuiltYear(String builtYear){
         Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher(builtYear);
+        if(m.find()) {
+            return Integer.valueOf(m.group());
+        }
+        return 0;
+    }
+
+    /**
+     * 获取交易完成后的单价
+     * @param price
+     * @return
+     */
+    public float getDealedUnitPrice(String price){
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher(price);
         if(m.find()) {
             return Integer.valueOf(m.group());
         }

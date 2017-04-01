@@ -24,10 +24,13 @@ public class LJHouseSpyTest {
 
     @Test
     public void crawlOneHouse(){
-        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101194178.html"));
-        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101100954046.html"));
-        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101179399.html"));
-        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101100855918.html"));
+//        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101194178.html"));
+//        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101100954046.html"));
+//        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101179399.html"));
+//        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101100855918.html"));
+//        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101257614.html"));
+        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101101257614.html"));
+
 
     }
 }

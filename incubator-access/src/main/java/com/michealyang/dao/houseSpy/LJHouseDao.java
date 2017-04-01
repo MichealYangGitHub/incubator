@@ -40,7 +40,7 @@ public interface LJHouseDao {
     @Select("select url from " + TABLE_NAME + " where off_shelf=0")
     public List<String> getAllOnShelfUrls();
 
-    @Update("update " + TABLE_NAME + " set final_total=#{finalTotal} where house_id=#{houseId}")
+    @Update("update " + TABLE_NAME + " set final_total=#{finalTotal}, off_shelf=1 where house_id=#{houseId}")
     public int offShelfHouse(@Param("houseId") long houseId, @Param("finalTotal") int finalTotal);
 
     @InsertProvider(type = SqlProvider.class, method = "insert")

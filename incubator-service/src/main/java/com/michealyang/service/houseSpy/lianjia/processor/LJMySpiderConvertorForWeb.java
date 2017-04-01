@@ -39,63 +39,18 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
         MyDocument myDocument = data.getResponseBody();
         ljHouseInfo.setUrl(data.getUrl());
         ljHouseInfo.setHouseId(getHouseId(data.getUrl()));
-        Document doc = myDocument.getJsoupDoucument();
+        ljHouseInfo.setTitle(myDocument.getTitle() == null ? "" : myDocument.getTitle());
 
+        Document doc = myDocument.getJsoupDoucument();
         ljHouseInfo.setImgs(getImgs(doc));
 
-        Elements price = doc.select("div.price");
-        if(CollectionUtils.isEmpty(price)){
-            logger.error("[doAction] 链家格式有改动，请确认 - price 找不到");
-            return null;
-        }
-
-        Elements houseInfo = doc.select("div.houseInfo");
-        if(CollectionUtils.isEmpty(houseInfo)){
-            logger.error("[doAction] 链家格式有改动，请确认 - houseInfo 找不到");
-            return null;
-        }
-        //总价
-        Elements total = price.select("span.total");
-        if(total.size() == 0){
-            logger.error("[doAction] 链家格式有改动，请确认 - total获取失败");
-            return null;
-        }
-
-        //房型
-        Elements houseType = houseInfo.select("div.room").select("div.mainInfo");
-        ljHouseInfo.setHouseType(houseType.text());
-
-        //面积
-        Elements area = houseInfo.select("div.area").select("div.mainInfo");
-        Elements builtYear = houseInfo.select("div.area").select("div.subInfo");
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(builtYear.text());
-        m.find();
-        String builtYearStr = m.group();
-        if(StringUtils.isBlank(builtYearStr)){
-            logger.error("[doAction] built Year 获取失败。忽略");
-        }else {
-            ljHouseInfo.setBuiltYear(Integer.valueOf(builtYearStr));
-        }
-
-
-
-        ljHouseInfo.setTitle(myDocument.getTitle() == null ? "" : myDocument.getTitle());
-        ljHouseInfo.setArea(getArea(area.text()));
-        ljHouseInfo.setTotal(Integer.valueOf(total.text()));
-        //单价
-        ljHouseInfo.setUnitPrice(ljHouseInfo.getTotal() / ljHouseInfo.getArea() * 10000);
-
-        Elements communityName = doc.select("div.communityName").select(".info");
-        ljHouseInfo.setCommunity(communityName.text());
-
         //是否下架
-        Elements offShelfTag = doc.select("img.remove_tag");
-        if(CollectionUtils.isNotEmpty(offShelfTag)){
-            ljHouseInfo.setOffShelf(1);
+        Elements dealedTag = doc.select("img.chengjiao");     //成交标识
+        if(CollectionUtils.isNotEmpty(dealedTag)) {
+            return parseDealed(ljHouseInfo, doc);
+        }else {
+            return parseNormal(ljHouseInfo, doc);
         }
-
-        return ljHouseInfo;
     }
 
     private long getHouseId(String url) {
@@ -135,6 +90,84 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
             return StringUtils.join(urls, ",");
         }
         return "";
+    }
+
+    private LJHouseInfo parseNormal(LJHouseInfo ljHouseInfo, Document doc){
+        logger.info("[parseNormal]");
+
+        Elements price = doc.select("div.price");
+        if(CollectionUtils.isEmpty(price)){
+            logger.error("[doAction] 链家格式有改动，请确认 - price 找不到");
+            return null;
+        }
+
+        Elements houseInfo = doc.select("div.houseInfo");
+        if(CollectionUtils.isEmpty(houseInfo)){
+            logger.error("[doAction] 链家格式有改动，请确认 - houseInfo 找不到");
+            return null;
+        }
+        //总价
+        Elements total = price.select("span.total");
+        if(total.size() == 0){
+            logger.error("[doAction] 链家格式有改动，请确认 - total获取失败");
+            return null;
+        }
+
+        //房型
+        Elements houseType = houseInfo.select("div.room").select("div.mainInfo");
+        ljHouseInfo.setHouseType(houseType.text());
+
+        //面积
+        Elements area = houseInfo.select("div.area").select("div.mainInfo");
+        Elements builtYear = houseInfo.select("div.area").select("div.subInfo");
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher(builtYear.text());
+        m.find();
+        String builtYearStr = m.group();
+        if(StringUtils.isBlank(builtYearStr)){
+            logger.error("[doAction] built Year 获取失败。忽略");
+        }else {
+            ljHouseInfo.setBuiltYear(Integer.valueOf(builtYearStr));
+        }
+
+        ljHouseInfo.setArea(getArea(area.text()));
+        ljHouseInfo.setTotal(Integer.valueOf(total.text()));
+        //单价
+        ljHouseInfo.setUnitPrice(ljHouseInfo.getTotal() / ljHouseInfo.getArea() * 10000);
+
+        Elements communityName = doc.select("div.communityName").select(".info");
+        ljHouseInfo.setCommunity(communityName.text());
+
+        Elements offShelfTag = doc.select("img.remove_tag");    //下架标识
+        if(CollectionUtils.isNotEmpty(offShelfTag)){
+            ljHouseInfo.setOffShelf(1);
+        }
+
+        return ljHouseInfo;
+    }
+
+    private LJHouseInfo parseDealed(LJHouseInfo ljHouseInfo, Document doc){
+        logger.info("[parseDealed]");
+        ljHouseInfo.setOffShelf(1);
+        Elements totalAndPrice = doc.select("div.price");
+        if(CollectionUtils.isEmpty(totalAndPrice)){
+            logger.error("[parseDealed] 链家格式有改动，请确认 - total and price 找不到");
+            return null;
+        }
+        //总价
+        Elements total = totalAndPrice.select("i");
+        if(total.size() == 0){
+            logger.error("[parseDealed] 链家格式有改动，请确认 - total获取失败");
+            return null;
+        }
+        Elements unitPrice = totalAndPrice.select("b");
+        if(total.size() == 0){
+            logger.error("[parseDealed] 链家格式有改动，请确认 - price获取失败");
+            return null;
+        }
+        ljHouseInfo.setTotal(Integer.valueOf(total.get(0).text()));
+        ljHouseInfo.setUnitPrice(Float.valueOf(unitPrice.get(0).text()));
+        return ljHouseInfo;
     }
 
 

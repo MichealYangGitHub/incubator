@@ -194,6 +194,7 @@ var LJHouseSpyProxy = {
     },
 
     showTraces : function(chartId, traces, timeSpan){
+        if(traces == null || traces.length == 0) return;
         var ctx = document.getElementById(chartId);
         var data = [];
         traces.forEach(function(e, i){

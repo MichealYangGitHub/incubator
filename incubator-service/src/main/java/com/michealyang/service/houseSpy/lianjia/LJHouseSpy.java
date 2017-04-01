@@ -92,14 +92,18 @@ public class LJHouseSpy {
         if(ljHouseInfo == null) {
             return new ResultDto(false, "网页解析失败");
         }
+
         if(ljHouseDao.lock(ljHouseInfo.getHouseId()) == 0){ //不存在该房源的记录
             logger.info("[doCrawl] 第一次爬取房源。houseId=#{}", ljHouseInfo.getHouseId());
             LJHouse ljHouse = myHouseSpyHelper.convertLJHouseInfo2LJHouse(ljHouseInfo);
             LJHouseTrace ljHouseTrace = myHouseSpyHelper.convertLJHouseInfo2LJHouseTrace(ljHouseInfo);
 
-            if(ljHouse.getOffShelf() != 0) {    //如果房源已经下架，则保存其最终价格
-                logger.info("[doCrawl] 该房源已下架. houseId=#{}", ljHouseInfo.getHouseId());
-                ljHouse.setFinalTotal(ljHouseTrace.getTotal());
+            if(ljHouse.getOffShelf() != 0) {    //如果房源已经下架或已成交，则不添加Trace
+                if(ljHouseInfo.getOffShelf() != 0) {
+                    return new ResultDto(false, "该房源已下架或者已成交");
+                }
+//                logger.info("[doCrawl] 该房源已下架. houseId=#{}", ljHouseInfo.getHouseId());
+//                ljHouse.setFinalTotal(ljHouseTrace.getTotal());
             }
             if(ljHouseDao.insert(ljHouse) <= 0){
                 logger.error("[doCrawl] LJHouse数据库插入失败。ljHouse=#{}", ljHouse);
@@ -118,6 +122,7 @@ public class LJHouseSpy {
                     logger.error("[doCrawl] 更新上下架状态失败！ljHouseInfo=#{}", ljHouseInfo);
                     return new ResultDto(false, Constants.SYS_FAILURE);
                 }
+                return new ResultDto(true, Constants.SUCCESS);
             }
             if(ljHouseTraceDao.insert(ljHouseTrace) <= 0){
                 logger.error("[doCrawl] LJHouseTrace数据库插入失败。ljHouseTrace=#{}", ljHouseTrace);
