@@ -28,6 +28,9 @@ public interface LJHouseDao {
     @SelectProvider(type = SqlProvider.class, method = "getHousesByConds")
     public List<LJHouse> getHousesByConds(Map<String, Object> conds);
 
+    @SelectProvider(type = SqlProvider.class, method = "getHouseCountByConds")
+    public int getHouseCountByConds(Map<String, Object> conds);
+
     @Select("select house_id from " + TABLE_NAME)
     public List<Long> getAllHouseIds();
 
@@ -60,7 +63,7 @@ public interface LJHouseDao {
                 WHERE("house_id=#{houseId}");
             }
 
-            if(conds.get("community") != null){
+            if(StringUtils.isNotBlank((String)conds.get("community"))){
                 WHERE("community like \"%\"#{community}\"%\"");
             }
 
@@ -71,6 +74,26 @@ public interface LJHouseDao {
                 sql += " limit #{offset}, #{pageSize}";
             }
             return sql;
+        }
+
+        public String getHouseCountByConds(Map<String, Object> conds) {
+            BEGIN();
+            SELECT("count(*)");
+            FROM(TABLE_NAME);
+            if(MapUtils.isEmpty(conds)){
+                WHERE("1=-1");
+            }
+
+            if(conds.get("houseId") != null){
+                WHERE("house_id=#{houseId}");
+            }
+
+            if(StringUtils.isNotBlank((String)conds.get("community"))){
+                WHERE("community like \"%\"#{community}\"%\"");
+            }
+
+            return SQL();
+
         }
 
         public String getHouses(HouseSpyQuery query) {

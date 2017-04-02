@@ -31,6 +31,9 @@
     <script src="http://cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="http://cdn.bootcss.com/sweetalert/1.1.3/sweetalert.min.js"></script>
 
+    <#--分页-->
+    <script src="http://cdn.bootcss.com/twbs-pagination/1.4.1/jquery.twbsPagination.min.js"></script>
+
     
     <title></title>
 </head>
@@ -167,6 +170,15 @@
     </div><!-- /.modal -->
 
     <div id="loading" class="loader-inner ball-spin-fade-loader full hidden"></div>
+
+
+    <div class="text-center mg-top-5vh">
+        <ul id="pagination" class="pagination"></ul>
+    </div>
+
+    <div id="footer" class="text-center mg-top-10vh" style="background-color: #333; height: 100px">
+        This is footer
+    </div>
 </body>
 </html>
 <script type="text/javascript" src="/static/js/util.js"></script>
@@ -174,7 +186,7 @@
 <link href="/static/css/base.css" rel="stylesheet">
 <script type="application/javascript">
     $(document).ready(function(){
-        LJHouseSpyProxy.getHouseInfo("");
+        LJHouseSpyProxy.getHouseInfo("", 1);
     });
 
     $(".houseInfo").hover(function(){

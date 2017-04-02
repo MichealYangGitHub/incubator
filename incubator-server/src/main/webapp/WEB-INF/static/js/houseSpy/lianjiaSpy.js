@@ -2,6 +2,7 @@
  * Created by michealyang on 17/3/6.
  */
 
+var pageNow = 1;
 
 //点击显示addModal
 $("#fix-add").click(function(){
@@ -41,9 +42,16 @@ $("body").on("blur", "#nav-search input[name=search]", function(e){
 //搜索按钮
 $("#nav-search #nav-search-btn").click(function(){
     var content = $.trim($("#nav-search input[name=search]").val());
-    LJHouseSpyProxy.getHouseInfo(content);
+    if(content == ""){
+        if(LJHouseSpyProxy.showAll){
+            return;
+        }else{
+            LJHouseSpyProxy.showAll = true;
+        }
+    }
+    LJHouseSpyProxy.showAll = false;
+    LJHouseSpyProxy.getHouseInfo(content, 1);
 });
-
 
 //addModal确认按钮响应
 $("#addModal button[name=addModal-confirm]").click(function(){
@@ -73,24 +81,22 @@ $("#addModal button[name=addModal-confirm]").click(function(){
 
 var LJHouseSpyProxy = {
     showAll: false,  //一个全局的flag
-    getHouseInfo : function(community){
-        var url = "/houseSpy/lianjia/r/list?community=" + community;
-        if(community == ""){
-            if(this.showAll){
-                return;
-            }else{
-                this.showAll = true;
-            }
-        }else{
-            this.showAll = false;
-        }
+    /**
+     *
+     * @param refresh   是佛需要重新请求
+     * @param community
+     * @param pageNum
+     */
+    getHouseInfo : function(community, pageNum){
+        var url = "/houseSpy/lianjia/r/list?community=" + community + "&pageNum=" + pageNum;
 
         var resp = AjaxProxy.queryByGet(url);
         if(!resp.success){
             DlgProxy.swalSimpleError(resp.msg);
             return;
         }
-        var houseInfos = resp.data;
+        var pageInfo = resp.data;
+        var houseInfos = pageInfo.data;
         if(JSBasic._typeof(houseInfos) != "array"){
             DlgProxy.swalSimpleError("数据格式错误");
             return;
@@ -101,7 +107,7 @@ var LJHouseSpyProxy = {
             return;
         }
 
-        this.showHouseInfo(houseInfos);
+        this.showHouseInfo(houseInfos, pageInfo.pageNums);
 
         //DlgProxy.swalSimpleSuccess("有" + houseInfos.length + "条数据");
         //$houseInfo = $("#houseInfos");
@@ -114,7 +120,7 @@ var LJHouseSpyProxy = {
 
     },
 
-    showHouseInfo : function(data){
+    showHouseInfo : function(data, pageNums){
         var viewTemplate = '\
         <div class="row houseInfo" style=" border: 1px solid #ddd; margin-top:40px; border-radius: 15px"> \
             <div class="row"> \
@@ -177,6 +183,18 @@ var LJHouseSpyProxy = {
             $houseInfos.append(view);
 
             LJHouseSpyProxy.showTraces(chartId, ljHouseTraces, e.timeSpan);
+
+            //展示分页
+            $('#pagination').twbsPagination({
+                totalPages: pageNums,
+                visiblePages: 7,
+                onPageClick: function (event, page) {
+                    if(page == pageNow) return;
+                    pageNow = page;
+                    var content = $.trim($("#nav-search input[name=search]").val());
+                    LJHouseSpyProxy.getHouseInfo(content, page);
+                }
+            });
         })
     },
 

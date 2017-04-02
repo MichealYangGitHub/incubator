@@ -66,12 +66,29 @@ public class LJHouseService {
 //        conds.put("startTime", query.getStartTime());
 //        conds.put("endTime", query.getEndTime());
         conds.put("community", query.getCommunity());
+        conds.put("offset", query.getOffset());
+        conds.put("pageSize", query.getPageSize());
 
         List<LJHouse> ljHouses = ljHouseDao.getHousesByConds(conds);
 
 //        List<LJHouse> ljHouses = ljHouseDao.getHouses(query);
 
         return fillHouseTrace(ljHouses, query);
+    }
+
+    public int getHouseCount(HouseSpyQuery query){
+        logger.info("[getHouseCount] query=#{}", query);
+        initQuery(query);
+        logger.info("[getHouseCount] query after init=#{}", query);
+
+        Map<String, Object> conds = Maps.newHashMap();
+        conds.put("houseId", query.getHouseId());
+//        conds.put("startTime", query.getStartTime());
+//        conds.put("endTime", query.getEndTime());
+        conds.put("community", query.getCommunity());
+        conds.put("offset", query.getOffset());
+        conds.put("pageSize", query.getPageSize());
+        return ljHouseDao.getHouseCountByConds(conds);
     }
 
 
@@ -162,7 +179,6 @@ public class LJHouseService {
      * @return
      */
     private List<LJHouseTrace> hashHouseTrace(LJHouse ljHouse, List<LJHouseTrace> ljHouseTraces, int range){
-        logger.info("[mappingHouseTrace] ljHouse=#{}", ljHouse);
         Preconditions.checkArgument(ljHouse != null);
         if(CollectionUtils.isEmpty(ljHouseTraces)) return ljHouseTraces;
 
@@ -209,7 +225,7 @@ public class LJHouseService {
      */
     private void initQuery(HouseSpyQuery query){
         if(query == null) query = new HouseSpyQuery();
-        if(query.getPageNum() == null || query.getPageSize() <= 0) {
+        if(query.getPageNum() == null || query.getPageNum() <= 0) {
             query.setPageNum(1);
         }
         if (query.getPageSize() == null || query.getPageSize() <= 0) {

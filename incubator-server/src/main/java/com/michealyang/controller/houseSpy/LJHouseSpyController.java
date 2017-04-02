@@ -1,5 +1,6 @@
 package com.michealyang.controller.houseSpy;
 
+import com.michealyang.model.base.dto.PageDto;
 import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.model.houseSpy.dto.AgentTypeEnum;
 import com.michealyang.model.houseSpy.dto.HouseSpyQuery;
@@ -58,8 +59,14 @@ public class LJHouseSpyController {
     public Object list(HouseSpyQuery query) {
         logger.info("[list] query=#{}", query);
         List<LJHouseInfoDto> ljHouseInfoDtos = ljHouseService.getHouseInfos(query);
+        int totalSize = ljHouseService.getHouseCount(query);
 
-        return JsonResponseUtil.successResp(Constants.SUCCESS, ljHouseInfoDtos);
+        PageDto pageDto = new PageDto<List>();
+        pageDto.setData(ljHouseInfoDtos);
+        pageDto.setTotalSize(totalSize);
+        pageDto.setPageNums(totalSize % query.getPageSize() == 0 ? totalSize / query.getPageSize() : totalSize / query.getPageSize() + 1);
+
+        return JsonResponseUtil.successResp(Constants.SUCCESS, pageDto);
     }
 
     /**
