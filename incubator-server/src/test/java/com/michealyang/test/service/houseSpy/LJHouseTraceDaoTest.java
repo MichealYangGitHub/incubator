@@ -32,7 +32,7 @@ public class LJHouseTraceDaoTest {
         for(String day : days) {
             LJHouseTrace ljHouseTrace = new LJHouseTrace();
             ljHouseTrace.setHouseId(101101179399l);
-            ljHouseTrace.setTotal(300 + RandomUtils.nextInt(20));
+            ljHouseTrace.setTotal((float)300 + RandomUtils.nextInt(20));
             ljHouseTrace.setUnitPrice(0.0f);
             ljHouseTrace.setCtime((int)DateUtil.Second2UT(day + " 12:00:00"));
             ljHouseTraceDao.insert(ljHouseTrace);

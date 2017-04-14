@@ -1,6 +1,7 @@
 package com.michealyang.service.houseSpy.lianjia;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.michealyang.dao.houseSpy.LJHouseDao;
 import com.michealyang.dao.houseSpy.LJHouseTraceDao;
 import com.michealyang.model.base.dto.ResultDto;
@@ -9,13 +10,17 @@ import com.michealyang.model.houseSpy.domain.LJHouseTrace;
 import com.michealyang.model.houseSpy.domain.mySpider.MyResponse;
 import com.michealyang.model.houseSpy.dto.AgentTypeEnum;
 import com.michealyang.model.houseSpy.dto.LJHouseInfo;
+import com.michealyang.model.houseSpy.dto.LJHousePage;
 import com.michealyang.service.houseSpy.IConvertor;
 import com.michealyang.service.houseSpy.MyHouseSpyHelper;
 import com.michealyang.service.houseSpy.lianjia.processor.LJMySpiderConvertorForMobile;
 import com.michealyang.service.houseSpy.lianjia.processor.LJMySpiderConvertorForWeb;
+import com.michealyang.service.houseSpy.lianjia.processor.LJMySpiderPageConvertor;
 import com.michealyang.service.houseSpy.spider.SpiderStrategy;
 import com.michealyang.service.houseSpy.spider.mySpider.MySpiderStrategy;
+import com.michealyang.service.houseSpy.spider.mySpider.MySpiderWithProxyStrategy;
 import com.michealyang.util.Constants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Created by michealyang on 17/3/17.
@@ -40,14 +46,18 @@ public class LJHouseSpy {
     @Resource
     private LJHouseTraceDao ljHouseTraceDao;
 
+    @Resource
+    private LJHouseService ljHouseService;
+
     /**
      * 抓取单个house内容，包含web版和mobile版
      * @param url   链接房源地址url。会对有效性进行校验
+     * @param withProxy   是否使用代理
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public ResultDto crawlOneHouse(String url) {
-        logger.info("[LJHouseSpy.crawlOneHouse] url=#{}", url);
+    public ResultDto crawlOneHouse(String url, boolean withProxy) {
+        logger.info("[crawlOneHouse] url=#{}, withProxy=#{}", url, withProxy);
         Preconditions.checkArgument(StringUtils.isNotBlank(url));
         if(!url.startsWith("http")){
             url = "https://" + url;
@@ -56,17 +66,50 @@ public class LJHouseSpy {
         if(AgentTypeEnum.INVALID.equals(agentTypeEnum)) {
             return new ResultDto(false, "请传入正确格式的url，或者请确认是否是链家的链接");
         }
+        SpiderStrategy strategy = withProxy ? new MySpiderWithProxyStrategy() : new MySpiderStrategy();
         ResultDto resultDto;
         if(AgentTypeEnum.MOBILE.equals(agentTypeEnum)) {
-            resultDto = doCrawl(url, new MySpiderStrategy(), new LJMySpiderConvertorForMobile());
+            resultDto = doCrawl(url, strategy, new LJMySpiderConvertorForMobile());
         }else {
-            resultDto = doCrawl(url, new MySpiderStrategy(), new LJMySpiderConvertorForWeb());
+            resultDto = doCrawl(url, strategy, new LJMySpiderConvertorForWeb());
         }
 
         if(!resultDto.isSuccess()) {
             return resultDto;
         }
         return new ResultDto(true, Constants.SUCCESS, url);
+    }
+
+    /**
+     * 批量爬取数据
+     * @param urls
+     * @param interval  爬取间隔，单位ms
+     * @return
+     */
+    public ResultDto crwalHouses(List<String> urls, int interval, boolean withPrxoy){
+        logger.info("[crwalHouses] urls=#{}, interval=#{}, withProxy=#{}", urls, interval, withPrxoy);
+        Preconditions.checkArgument(CollectionUtils.isNotEmpty(urls));
+
+        int count = 0;
+        for(String url : urls){
+            if(StringUtils.isBlank(url)) continue;
+            ResultDto res = crawlOneHouse(url, withPrxoy);
+            logger.info("[crwalHouses] 爬取结果=#{}", res);
+            if(!res.isSuccess()){
+                logger.error("[crwalHouses] URL爬取失败。failedUrl=#{}", url);
+                continue;
+            }
+            count++;
+            try {
+                Thread.sleep(interval);
+            } catch (InterruptedException e) {
+                logger.error("[crwalHouses] Sleep Exception=#{}", e);
+            }
+        }
+        if((float)count / urls.size() <0.5) {
+            return new ResultDto(false, "爬取成功率不足50%");
+        }
+        return new ResultDto(true, "成功爬取了" + count + "条数据(总数:" + urls.size() + ")");
     }
 
     /**
@@ -131,5 +174,64 @@ public class LJHouseSpy {
         }
 
         return new ResultDto(true, Constants.SUCCESS);
+    }
+
+    public ResultDto crawlByPage(String pageUrl, boolean withPrxoy) {
+        logger.info("[crawlByPage] pageUrls=#{}, withProxy=#{}", pageUrl, withPrxoy);
+        ResultDto resultDto = crawlOnePage(pageUrl, withPrxoy);
+        if(!resultDto.isSuccess()) {
+            logger.error("[crawlByPage] 爬取page失败。PageUrl=#{}", pageUrl);
+            return resultDto;
+        }
+        List<String> successUrls = Lists.newArrayList();
+        successUrls.add(pageUrl);
+
+        String nextPage = (String)resultDto.getData();
+        while (StringUtils.isNotBlank(nextPage)) {
+            ResultDto res = crawlOnePage(nextPage, withPrxoy);
+            if(!res.isSuccess()) {
+                logger.error("[crawlByPage] 爬取page失败。PageUrl=#{}", nextPage);
+                return res;
+            }
+            successUrls.add(nextPage);
+            nextPage = (String)res.getData();
+        }
+
+        logger.info("[crawlByPage] 成功爬取的page有successUrls=#{}", successUrls);
+
+        return new ResultDto(true, Constants.SUCCESS, pageUrl);
+    }
+
+    private ResultDto crawlOnePage(String pageUrl, boolean withProxy){
+        logger.info("[crawlOnePage] pageUrl=#{}", pageUrl);
+        if(StringUtils.isBlank(pageUrl)) {
+            return new ResultDto(false, Constants.ARGUMENT_FAILURE);
+        }
+        SpiderStrategy spiderStrategy = withProxy ? new MySpiderWithProxyStrategy() : new MySpiderStrategy();
+        ResultDto resultDto = spiderStrategy.crawlWeb(pageUrl);
+        if(!resultDto.isSuccess()) {
+            return resultDto;
+        }
+        MyResponse response = (MyResponse)resultDto.getData();
+        if(response == null) {
+            return new ResultDto(false, Constants.SYS_FAILURE);
+        }
+
+        LJMySpiderPageConvertor convertor = new LJMySpiderPageConvertor();
+        LJHousePage housePage = convertor.doAction(response);
+        if(housePage == null) {
+            return new ResultDto(false, "流量异常", pageUrl);
+        }
+
+        if(CollectionUtils.isNotEmpty(housePage.getTargetUrls())) {
+            ResultDto res = ljHouseService.addSpies(housePage.getTargetUrls(), withProxy);
+            logger.info("[crawlOnePage] res=#{}", res);
+            if (!res.isSuccess()) {
+                logger.error("[crawlOnePage] addSpies错误=#{}", res);
+            }
+        }
+
+        logger.info("[crawlOnePage]成功爬取了页面pageUrl=#{}, 开始爬取下一页=#{}", pageUrl, housePage.getNextPage());
+        return new ResultDto(true, Constants.SUCCESS, housePage.getNextPage());
     }
 }

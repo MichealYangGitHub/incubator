@@ -1,5 +1,6 @@
 package com.michealyang.test.service.houseSpy;
 
+import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.service.houseSpy.lianjia.LJHouseSpy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,8 +30,15 @@ public class LJHouseSpyTest {
 //        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101179399.html"));
 //        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101100855918.html"));
 //        System.out.println(ljHouseSpy.crawlOneHouse("https://m.lianjia.com/bj/ershoufang/101101257614.html"));
-        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101101257614.html"));
+        System.out.println(ljHouseSpy.crawlOneHouse("https://bj.lianjia.com/ershoufang/101101257614.html", true));
 
 
+    }
+
+    @Test
+    public void crwalByPage() {
+        String url = "http://bj.lianjia.com/ershoufang/dongcheng";
+        ResultDto res = ljHouseSpy.crawlByPage(url, true);
+        System.out.println(res);
     }
 }

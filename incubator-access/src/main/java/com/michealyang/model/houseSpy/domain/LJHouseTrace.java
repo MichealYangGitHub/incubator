@@ -6,7 +6,7 @@ package com.michealyang.model.houseSpy.domain;
 public class LJHouseTrace {
     private Integer id;
     private Long houseId;
-    private Integer total;
+    private Float total;
     private Float unitPrice;    //单价
     private Integer ctime;
 
@@ -26,11 +26,11 @@ public class LJHouseTrace {
         this.houseId = houseId;
     }
 
-    public Integer getTotal() {
+    public Float getTotal() {
         return total;
     }
 
-    public void setTotal(Integer total) {
+    public void setTotal(Float total) {
         this.total = total;
     }
 

@@ -80,7 +80,7 @@ public interface LJHouseTraceDao {
                 VALUES("house_id", "#{houseId}");
             }
 
-            if (ljHouseTrace.getTotal() != null && ljHouseTrace.getTotal() != 0) {
+            if (ljHouseTrace.getTotal() != null && ljHouseTrace.getTotal() > 0) {
                 VALUES("total", "#{total}");
             }
 

@@ -41,7 +41,7 @@ public class SpyAction {
         long start = System.currentTimeMillis();
         for(String url : urls) {
             if(StringUtils.isBlank(url)) continue;
-            ResultDto resultDto = ljHouseSpy.crawlOneHouse(url);
+            ResultDto resultDto = ljHouseSpy.crawlOneHouse(url, true);
             logger.info("[go] resultDto=#{}", resultDto);
             if(!resultDto.isSuccess()){
                 logger.error("[go] 报告，有错误！resultDto=#{}", resultDto);

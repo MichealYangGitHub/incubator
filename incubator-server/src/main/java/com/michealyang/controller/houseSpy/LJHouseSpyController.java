@@ -2,12 +2,9 @@ package com.michealyang.controller.houseSpy;
 
 import com.michealyang.model.base.dto.PageDto;
 import com.michealyang.model.base.dto.ResultDto;
-import com.michealyang.model.houseSpy.dto.AgentTypeEnum;
 import com.michealyang.model.houseSpy.dto.HouseSpyQuery;
 import com.michealyang.model.houseSpy.dto.LJHouseInfoDto;
-import com.michealyang.service.houseSpy.MyHouseSpyHelper;
 import com.michealyang.service.houseSpy.lianjia.LJHouseService;
-import com.michealyang.service.houseSpy.lianjia.LJHouseSpy;
 import com.michealyang.service.schedule.SpyAction;
 import com.michealyang.util.Constants;
 import com.michealyang.util.JsonResponseUtil;
@@ -32,12 +29,6 @@ public class LJHouseSpyController {
 
     @Resource
     private LJHouseService ljHouseService;
-
-    @Resource
-    private LJHouseSpy ljHouseSpy;
-
-    @Resource
-    private MyHouseSpyHelper myHouseSpyHelper;
 
     @Resource
     private SpyAction spyAction;
@@ -91,30 +82,11 @@ public class LJHouseSpyController {
     @RequestMapping("/w/addSpy")
     public Object addSpy(String url) {
         logger.info("[addSpy] url=#{}", url);
-        AgentTypeEnum agentTypeEnum = myHouseSpyHelper.getAgentType(url);
-        if(AgentTypeEnum.INVALID.equals(agentTypeEnum)){
-            return JsonResponseUtil.failureResp("URL格式不正确", null);
+        ResultDto resultDto = ljHouseService.addSpy(url);
+        if(!resultDto.isSuccess()) {
+            return JsonResponseUtil.failureResp(resultDto.getMsg(), null);
         }
-
-        Long houseId = myHouseSpyHelper.getLjHouseId(url);
-        if(houseId == 0){
-            return JsonResponseUtil.failureResp("URL格式不正确", null);
-        }
-        logger.info("[addSpy] houseId=#{}", houseId);
-
-        if(ljHouseService.checkExist(houseId)){
-            logger.info("[addSpy] houseId=#{}已经在监控中", houseId);
-            //已经存在, do nothing
-            return JsonResponseUtil.successResp(Constants.SUCCESS, null);
-        }else{
-            //不存在，则立即爬取一次数据
-            logger.info("[addSpy] houseId=#{}不在监控中，开始添加监控", houseId);
-            ResultDto resultDto = ljHouseSpy.crawlOneHouse(url);
-            if(!resultDto.isSuccess()) {
-                return JsonResponseUtil.failureResp(resultDto.getMsg(), null);
-            }
-            return JsonResponseUtil.successResp(Constants.SUCCESS, null);
-        }
+        return JsonResponseUtil.successResp(resultDto.getMsg(), null);
     }
 
     @ResponseBody

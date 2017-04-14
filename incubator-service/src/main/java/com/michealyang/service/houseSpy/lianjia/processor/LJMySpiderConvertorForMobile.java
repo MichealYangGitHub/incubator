@@ -48,11 +48,16 @@ public class LJMySpiderConvertorForMobile implements IConvertor<MyResponse, LJHo
 
         //是否下架
         Elements dealedTag = doc.select("div.signed_logo");     //成交标识
+        LJHouseInfo res = null;
         if(CollectionUtils.isNotEmpty(dealedTag)) {
-            return parseDealed(ljHouseInfo, doc);
+            res = parseDealed(ljHouseInfo, doc);
         }else {
-            return parseNormal(ljHouseInfo, doc);
+            res = parseNormal(ljHouseInfo, doc);
         }
+        if(res == null) {
+            logger.info("[HTML]: #{}", data.getResponseBody().getHtml());
+        }
+        return res;
     }
 
     /**

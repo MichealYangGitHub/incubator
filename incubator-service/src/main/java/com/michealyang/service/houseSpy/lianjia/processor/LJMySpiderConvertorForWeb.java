@@ -46,11 +46,21 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
 
         //是否下架
         Elements dealedTag = doc.select("img.chengjiao");     //成交标识
-        if(CollectionUtils.isNotEmpty(dealedTag)) {
-            return parseDealed(ljHouseInfo, doc);
-        }else {
-            return parseNormal(ljHouseInfo, doc);
+        LJHouseInfo res = null;
+        try {
+            if(CollectionUtils.isNotEmpty(dealedTag)) {
+                res = parseDealed(ljHouseInfo, doc);
+            }else {
+                res = parseNormal(ljHouseInfo, doc);
+            }
+        }catch (Exception e){
+            logger.error("[doAction] Exception=#{}, url=#{}", e, data.getUrl());
         }
+
+        if(res == null) {
+            logger.info("[HTML]: #{}", data.getResponseBody().getHtml());
+        }
+        return res;
     }
 
     private long getHouseId(String url) {
@@ -122,16 +132,17 @@ public class LJMySpiderConvertorForWeb implements IConvertor<MyResponse, LJHouse
         Elements builtYear = houseInfo.select("div.area").select("div.subInfo");
         Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher(builtYear.text());
-        m.find();
-        String builtYearStr = m.group();
-        if(StringUtils.isBlank(builtYearStr)){
-            logger.error("[doAction] built Year 获取失败。忽略");
-        }else {
-            ljHouseInfo.setBuiltYear(Integer.valueOf(builtYearStr));
+        if(m.find()){
+            String builtYearStr = m.group();
+            if(StringUtils.isBlank(builtYearStr)){
+                logger.error("[doAction] built Year 获取失败。忽略");
+            }else {
+                ljHouseInfo.setBuiltYear(Integer.valueOf(builtYearStr));
+            }
         }
 
         ljHouseInfo.setArea(getArea(area.text()));
-        ljHouseInfo.setTotal(Integer.valueOf(total.text()));
+        ljHouseInfo.setTotal(Float.valueOf(total.text()));
         //单价
         ljHouseInfo.setUnitPrice(ljHouseInfo.getTotal() / ljHouseInfo.getArea() * 10000);
 

@@ -9,7 +9,7 @@ public class LJHouseInfo {
     private String title;
     private float area; //面积
     private String houseType;   //房型
-    private int total;  //总价
+    private float total;  //总价
     private float unitPrice;    //单价
     private String community;   //小区
     private int offShelf;   //是否已经下架
@@ -60,11 +60,11 @@ public class LJHouseInfo {
         this.houseType = houseType;
     }
 
-    public int getTotal() {
+    public float getTotal() {
         return total;
     }
 
-    public void setTotal(int total) {
+    public void setTotal(float total) {
         this.total = total;
     }
 

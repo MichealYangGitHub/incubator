@@ -5,10 +5,14 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.michealyang.dao.houseSpy.LJHouseDao;
 import com.michealyang.dao.houseSpy.LJHouseTraceDao;
+import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.model.houseSpy.domain.LJHouse;
 import com.michealyang.model.houseSpy.domain.LJHouseTrace;
+import com.michealyang.model.houseSpy.dto.AgentTypeEnum;
 import com.michealyang.model.houseSpy.dto.HouseSpyQuery;
 import com.michealyang.model.houseSpy.dto.LJHouseInfoDto;
+import com.michealyang.service.houseSpy.MyHouseSpyHelper;
+import com.michealyang.util.Constants;
 import com.michealyang.util.DateUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -32,6 +36,12 @@ public class LJHouseService {
 
     @Resource
     private LJHouseTraceDao ljHouseTraceDao;
+
+    @Resource
+    private MyHouseSpyHelper myHouseSpyHelper;
+
+    @Resource
+    private LJHouseSpy ljHouseSpy;
 
     public boolean checkExist(Long houseId) {
         logger.info("[checkExist] houseId=#{}", houseId);
@@ -89,6 +99,60 @@ public class LJHouseService {
         conds.put("offset", query.getOffset());
         conds.put("pageSize", query.getPageSize());
         return ljHouseDao.getHouseCountByConds(conds);
+    }
+
+    public ResultDto addSpy(String url) {
+        logger.info("[addSpy] url=#{}", url);
+        AgentTypeEnum agentTypeEnum = myHouseSpyHelper.getAgentType(url);
+        if(AgentTypeEnum.INVALID.equals(agentTypeEnum)) {
+            return new ResultDto<>(false, "URL格式不正确");
+        }
+
+        Long houseId = myHouseSpyHelper.getLjHouseId(url);
+        if(houseId == 0){
+            return new ResultDto<>(false, "URL格式不正确");
+        }
+        logger.info("[addSpy] houseId=#{}", houseId);
+
+        if(checkExist(houseId)){
+            logger.info("[addSpy] houseId=#{}已经在监控中", houseId);
+            //已经存在, do nothing
+            return new ResultDto<>(true, Constants.SUCCESS);
+        }else{
+            //不存在，则立即爬取一次数据
+            logger.info("[addSpy] houseId=#{}不在监控中，开始添加监控", houseId);
+            ResultDto resultDto = ljHouseSpy.crawlOneHouse(url, true);
+            if(!resultDto.isSuccess()) {
+                return resultDto;
+            }
+            return new ResultDto<>(true, Constants.SUCCESS);
+        }
+    }
+
+    public ResultDto addSpies(List<String> urls, boolean withProxy){
+        logger.info("[addSpies] urls=#{}", urls);
+        Preconditions.checkArgument(CollectionUtils.isNotEmpty(urls));
+        List<String> nxUrls = Lists.newArrayList();
+
+        for(String url : urls){
+            AgentTypeEnum agentTypeEnum = myHouseSpyHelper.getAgentType(url);
+            if(AgentTypeEnum.INVALID.equals(agentTypeEnum)) {
+                logger.error("[addSpies] URL格式不正确");
+                continue;
+            }
+            Long houseId = myHouseSpyHelper.getLjHouseId(url);
+            if(checkExist(houseId)){
+                logger.info("[addSpies] houseId=#{}已经在监控中", houseId);
+                continue;
+            }else {
+                nxUrls.add(url);
+            }
+        }
+        logger.info("[addSpies] 不在监控中的urls=#{}", nxUrls);
+        if(CollectionUtils.isNotEmpty(nxUrls)) {
+            return ljHouseSpy.crwalHouses(urls, 100, withProxy);
+        }
+        return new ResultDto(true, Constants.SUCCESS);
     }
 
 
