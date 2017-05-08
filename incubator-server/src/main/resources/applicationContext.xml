@@ -9,9 +9,17 @@
     <context:component-scan base-package="com.michealyang.*" />
     <context:annotation-config />
     <task:annotation-driven />
-    <context:property-placeholder location="classpath:database.properties" />
 
     <import resource="classpath:database.xml" />
+    <!--<import resource="my-sso-client.xml"/>-->
 
+    <context:property-placeholder location="classpath:sso.config.properties" ignore-unresolvable="true" />
+
+    <bean id="ssoFilter" class="com.michealyang.sso.client.filter.SsoFilter">
+        <property name="ssoLogin" value="${sso.login}"></property>
+        <property name="ssoAuth" value="${sso.auth}"></property>
+        <property name="ssoLogout" value="${sso.logout}"></property>
+        <property name="host" value="${my.host}"></property>
+    </bean>
 
 </beans>

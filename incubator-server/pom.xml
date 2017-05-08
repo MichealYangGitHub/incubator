@@ -15,11 +15,23 @@
     <dependencies>
         <dependency>
             <groupId>com.michealyang</groupId>
+            <artifactId>my-sso-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.michealyang</groupId>
             <artifactId>incubator-service</artifactId>
         </dependency>
         <dependency>
             <groupId>com.michealyang</groupId>
             <artifactId>incubator-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.michealyang</groupId>
+            <artifactId>my-commons-dto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.michealyang</groupId>
+            <artifactId>my-commons-utils</artifactId>
         </dependency>
 
         <!-- spring -->
