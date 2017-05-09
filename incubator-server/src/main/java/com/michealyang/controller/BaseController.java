@@ -29,4 +29,16 @@ public class BaseController {
 
         return "index";
     }
+
+    @RequestMapping("/error/404")
+    public String index404(Model model){
+        logger.info("[index404]");
+        return "404";
+    }
+
+    @RequestMapping("/error/500")
+    public String index500(Model model){
+        logger.info("[index500]");
+        return "500";
+    }
 }
