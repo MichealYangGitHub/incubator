@@ -1,7 +1,7 @@
 package com.michealyang.service.hotPoi;
 
 import com.google.common.base.Preconditions;
-import com.michealyang.dao.hotPoi.HospitalDao;
+import com.michealyang.db.dao.hotPoi.HospitalDao;
 import com.michealyang.model.hotPoi.domain.Hospital;
 import com.michealyang.model.base.dto.ResultDto;
 import com.michealyang.util.Constants;

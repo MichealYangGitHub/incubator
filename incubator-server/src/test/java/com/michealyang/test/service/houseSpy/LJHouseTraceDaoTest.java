@@ -1,6 +1,6 @@
 package com.michealyang.test.service.houseSpy;
 
-import com.michealyang.dao.houseSpy.LJHouseTraceDao;
+import com.michealyang.db.dao.houseSpy.LJHouseTraceDao;
 import com.michealyang.model.houseSpy.domain.LJHouseTrace;
 import com.michealyang.util.DateUtil;
 import org.apache.commons.lang.math.RandomUtils;
@@ -13,7 +13,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by michealyang on 17/3/30.

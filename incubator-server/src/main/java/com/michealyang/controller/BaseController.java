@@ -4,8 +4,8 @@
 
 package com.michealyang.controller;
 
-import com.michealyang.sso.access.model.User;
-import com.michealyang.sso.client.util.UserUtil;
+import com.michealyang.auth.domain.User;
+import com.michealyang.auth.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -24,8 +24,6 @@ public class BaseController {
         logger.info("[index] index");
         User user = UserUtil.getUser();
         logger.info("[index] user=#{}", user);
-
-        model.addAttribute("user", user);
 
         return "index";
     }

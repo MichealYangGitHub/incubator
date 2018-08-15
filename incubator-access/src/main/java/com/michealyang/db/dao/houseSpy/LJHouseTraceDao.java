@@ -1,4 +1,4 @@
-package com.michealyang.dao.houseSpy;
+package com.michealyang.db.dao.houseSpy;
 
 import com.michealyang.model.houseSpy.domain.LJHouseTrace;
 import org.apache.commons.collections4.MapUtils;

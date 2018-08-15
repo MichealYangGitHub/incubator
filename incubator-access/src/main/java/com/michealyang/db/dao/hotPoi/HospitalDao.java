@@ -1,4 +1,4 @@
-package com.michealyang.dao.hotPoi;
+package com.michealyang.db.dao.hotPoi;
 
 import com.michealyang.model.hotPoi.domain.Hospital;
 import org.apache.commons.lang3.StringUtils;

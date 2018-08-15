@@ -1,4 +1,4 @@
-package com.michealyang.dao;
+package com.michealyang.db.dao;
 
 import com.michealyang.model.base.TestUser;
 import org.apache.ibatis.annotations.Select;

@@ -1,7 +1,7 @@
 package com.michealyang.test.service.houseSpy;
 
 import com.google.common.collect.Maps;
-import com.michealyang.dao.houseSpy.LJHouseDao;
+import com.michealyang.db.dao.houseSpy.LJHouseDao;
 import com.michealyang.model.houseSpy.domain.LJHouse;
 import org.junit.Test;
 import org.junit.runner.RunWith;

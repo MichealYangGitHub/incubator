@@ -1,4 +1,4 @@
-package com.michealyang.dao.houseSpy;
+package com.michealyang.db.dao.houseSpy;
 
 import com.michealyang.model.houseSpy.domain.LJHouse;
 import com.michealyang.model.houseSpy.dto.HouseSpyQuery;
